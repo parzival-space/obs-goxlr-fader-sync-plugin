@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaderSyncPlugin", "FaderSyncPlugin\FaderSyncPlugin.csproj", "{799C4513-13E1-4938-AD1E-636FCAAFF8AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{BB6CE012-7AF1-4D31-BA13-68C4CCB50652}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityClient", "UtilityClient\UtilityClient.csproj", "{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{799C4513-13E1-4938-AD1E-636FCAAFF8AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{799C4513-13E1-4938-AD1E-636FCAAFF8AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{799C4513-13E1-4938-AD1E-636FCAAFF8AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{799C4513-13E1-4938-AD1E-636FCAAFF8AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB6CE012-7AF1-4D31-BA13-68C4CCB50652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB6CE012-7AF1-4D31-BA13-68C4CCB50652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB6CE012-7AF1-4D31-BA13-68C4CCB50652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB6CE012-7AF1-4D31-BA13-68C4CCB50652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

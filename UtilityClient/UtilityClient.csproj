@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>GoXLRUtilityClient</RootNamespace>
+
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <StripSymbols>true</StripSymbols>
+        <PublishAot>true</PublishAot>
+        <PublisheTrimmed>true</PublisheTrimmed>
+        <IsAotCompatible>true</IsAotCompatible>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="JsonPatch.Net" Version="3.0.0" />
+    </ItemGroup>
+
+</Project>

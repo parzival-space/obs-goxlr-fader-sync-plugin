@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <StripSymbols>true</StripSymbols>
+        <PublishAot>true</PublishAot>
+        <PublisheTrimmed>true</PublisheTrimmed>
+        <IsAotCompatible>true</IsAotCompatible>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <RootNamespace>FaderSync</RootNamespace>
+    </PropertyGroup>
+
+    <!-- 
+        Json Serializer needs future attention:
+        https://github.com/dotnet/docs/issues/37730
+    -->
+    <PropertyGroup>
+        <PublishTrimmed>true</PublishTrimmed>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NetObsBindings" Version="30.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\UtilityClient\UtilityClient.csproj" />
+    </ItemGroup>
+
+</Project>
