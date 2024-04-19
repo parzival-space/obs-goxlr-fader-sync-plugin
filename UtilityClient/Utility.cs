@@ -85,7 +85,7 @@ public class Utility : WebsocketClient
 
     public new async Task ConnectAsync()
     {
-        String pipeName = OperatingSystem.IsWindows() ? "@goxlr.socket" : "goxlr.socket";
+        String pipeName = OperatingSystem.IsWindows() ? "@goxlr.socket" : "/tmp/goxlr.socket";
         SocketClient socketClient = new SocketClient(pipeName);
         socketClient.Connect();
         
