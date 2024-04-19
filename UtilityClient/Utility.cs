@@ -93,6 +93,9 @@ public class Utility : WebsocketClient
         socketClient.SendMessage("\"GetStatus\"");
         string response = socketClient.ReadMessage();
         
+        // close socket client connection
+        socketClient.Dispose();
+        
         // try parsing the response
         JsonNode? status = JsonNode.Parse(response);
         if (status == null) throw new JsonException("Failed to parse status response.");

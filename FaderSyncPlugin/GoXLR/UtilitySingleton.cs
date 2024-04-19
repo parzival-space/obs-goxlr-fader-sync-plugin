@@ -8,6 +8,23 @@ public static class UtilitySingleton
     private static readonly Logger Log = new Logger(typeof(Plugin), Module.Name);
     
     private static Utility? _utility;
+    private static Thread? _connectionThread = null;
+
+    private static async void Connect()
+    {
+        // create tasks
+        await _utility!.ConnectAsync();
+
+        if (_utility.IsConnectionAlive())
+        {
+            Log.Info($"Connected to GoXLR Utility v{_utility.Status?["config"]?["daemon_version"]}");
+        }
+        else
+        {
+            Log.Warning("Failed to connect to GoXLR Utility. Retrying...");
+        }
+    }
+    
     public static Utility GetInstance()
     {
         _utility ??= new Utility();
@@ -18,21 +35,10 @@ public static class UtilitySingleton
             Log.Error($"Something internally went wrong in the GoXLR Utility API Client: {exception.Message}");
         };
 
-        _utility.OnMessage += (sender, s) =>
+        if (_connectionThread is not { IsAlive: true } && !_utility.IsConnectionAlive())
         {
-            Log.Info($"Data: {s}");
-            Log.Info(_utility.Status?["mixers"]?["S210816051CQK"]?["levels"]?["volumes"]?.ToJsonString()!);
-        };
-        
-        // create new GoXLR Utility Client
-        Log.Warning("Utility not connected. Connecting...");
-        if (_utility.ConnectAsync().Wait(TimeSpan.FromSeconds(5)))
-        {
-            Log.Info($"Connected to GoXLR Utility v{_utility.Status?["config"]?["daemon_version"]}");
-        }
-        else
-        {
-            Log.Error("Failed to connect to GoXLR Utility after waiting for 5 seconds.");
+            _connectionThread = new Thread(Connect);
+            _connectionThread.Start();
         }
         
         return _utility;
