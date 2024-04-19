@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OBS_PATH="~/.config/obs-studio/plugins/obs-goxlr-fader-sync"
+OBS_PATH=~/.config/obs-studio/plugins/obs-goxlr-fader-sync
 
 # Check if OBS is running..
 pidof obs
