@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OBS_PATH=~/.config/obs-studio/plugins/obs-goxlr-fader-sync
+OBS_PATH=~/.config/obs-studio/plugins/obs-goxlr-fader-sync/bin/64bit
 
 # Check if OBS is running..
 pidof obs
@@ -20,7 +20,6 @@ fi
 
 # Make sure the plugin path exists..
 mkdir -p $OBS_PATH
-cp UtilityClient/bin/Release/net8.0/linux-x64/publish/UtilityClient.so $OBS_PATH
 
 # Needs specific naming..
 cp FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/FaderSyncPlugin.so $OBS_PATH/obs-goxlr-fader-sync.so
