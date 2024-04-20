@@ -1,0 +1,42 @@
+name: Publish Solution
+on: [ workflow_dispatch, workflow_call ]
+jobs:
+  publish_windows:
+    name: "Create Windows Artifacts"
+    runs-on: windows-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: action/checkout@4
+      - name: "Setup .NET Cli"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: "Build Solution"
+        run: dotnet publish -r win-x64 --self-contained
+      - name: "Upload Artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifact
+          path: ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*.dll
+  
+  publish_linux:
+    name: "Create Linux Artifacts"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Checkout Repository"
+        uses: action/checkout@4
+      - name: "Setup AOT Dependencies"
+        run: |
+          apt update
+          apt install clang zlib1g-dev -y
+      - name: "Setup .NET Cli"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: "Build Solution"
+        run: dotnet publish -r linux-x64 --self-contained
+      - name: "Upload Artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifact
+          path: ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*.so
