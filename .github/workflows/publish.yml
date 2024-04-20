@@ -17,7 +17,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifact
-          path: ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*.dll
+          path: ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
   
   publish_linux:
     name: "Create Linux Artifacts"
@@ -27,8 +27,8 @@ jobs:
         uses: actions/checkout@v4.1.1
       - name: "Setup AOT Dependencies"
         run: |
-          apt update
-          apt install clang zlib1g-dev -y
+          sudo apt update
+          sudo apt install clang zlib1g-dev -y
       - name: "Setup .NET Cli"
         uses: actions/setup-dotnet@v4
         with:
@@ -39,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
-          path: ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*.so
+          path: ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
