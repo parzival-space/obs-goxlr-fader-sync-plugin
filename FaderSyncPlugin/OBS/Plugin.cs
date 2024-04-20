@@ -35,7 +35,7 @@ namespace FaderSync.OBS
             Log.Info("Loading Plugin...");
             
             Log.Info("Preparing Utility Client...");
-            var client = UtilitySingleton.GetInstance();
+            _ = UtilitySingleton.GetInstance();
             
             Log.Info("Loading filters...");
             GoXlrChannelSyncFilter.Register(ModuleName);

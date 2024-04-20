@@ -124,7 +124,7 @@ public class WebsocketClient : IDisposable
         return this._client.State == WebSocketState.Open;
     }
 
-    public async void DisconnectAsync()
+    public async Task DisconnectAsync()
     {
         await this._client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
         this.OnDisconnected?.Invoke(this, "Connection closed.");

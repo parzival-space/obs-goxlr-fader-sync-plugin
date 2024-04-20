@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json.Nodes;
 using FaderSync.GoXLR;
 using GoXLRUtilityClient;
 using ObsInterop;
@@ -103,10 +104,10 @@ public class GoXlrChannelSyncFilter
         // Ok, the GoXLR seems to decrease the volume by 1dB for every (on average) 4.85 volume steps, it
         // doesn't appear to be an exact science, but this should get us close enough to accurate for now.
 
-        // So, start simply, how many multiples of 4.85 are we below max (number of dB we need to decrase by)?
+        // So, start simply, how many multiples of 4.85 are we below max (number of dB we need to decrease by)?
         float utilityBase = (255f - (float)systemVolume) / 4.85f;
 
-        // Below 140, the adjustment increases, so we need to accomdate for that here.. 
+        // Below 140, the adjustment increases, so we need to accommodate for that here.
         if (systemVolume < 140) {
             var count = 140 - systemVolume;
             utilityBase += count * 0.115f;
@@ -115,8 +116,24 @@ public class GoXlrChannelSyncFilter
         // Now we convert this into a OBS value...
         float obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
         
+        // check if channel is muted
+        bool isMuted = false;
+        JsonObject faderStatus = (JsonObject) utility.Status?["mixers"]?[deviceSerial ?? ""]?["fader_status"]!;
+
+        foreach (var faderEntry in faderStatus)
+        {
+            if (faderEntry.Value?["channel"]?.GetValue<string>() != channelName) continue;
+            
+            isMuted = faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToAll" ||
+                      (faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToX" &&
+                       faderEntry.Value?["mute_type"]?.GetValue<string>() == "ToStream");
+            break;
+        }
+        
+        
         // Update OBS Volume
-        Obs.obs_source_set_volume(target, obsVolume);
+        Obs.obs_source_set_volume(target,  obsVolume);
+        Obs.obs_source_set_muted(target, isMuted ? (byte)1 : (byte)0);
     }
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
