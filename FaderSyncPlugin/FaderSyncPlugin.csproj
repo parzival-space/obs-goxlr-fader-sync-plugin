@@ -10,9 +10,12 @@
         <PublishAot>true</PublishAot>
         <PublisheTrimmed>true</PublisheTrimmed>
         <IsAotCompatible>true</IsAotCompatible>
-        <AssemblyVersion>0.1.0.0</AssemblyVersion>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <RootNamespace>FaderSync</RootNamespace>
+        
+        <Version>0.0.0.1</Version>
+        <FileVersion>0.0.0.1</FileVersion>
+        <InformationalVersion>0.0.0.1</InformationalVersion>
     </PropertyGroup>
 
     <!-- 

@@ -11,7 +11,6 @@ namespace FaderSync.OBS;
 public class GoXlrChannelSyncFilter
 {
     private static readonly Logger Log = new Logger(typeof(Plugin));
-    private const string ModuleName = "FaderSyncPlugin";
 
     unsafe struct FilterContext
     {

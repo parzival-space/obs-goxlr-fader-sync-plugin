@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using FaderSync.GoXLR;
 using ObsInterop;
 
@@ -6,9 +7,7 @@ namespace FaderSync.OBS
 {
     public static class Plugin
     {
-        private const string ModuleName = "FaderSyncPlugin";
-        
-        private static readonly Logger Log = new Logger(typeof(Plugin), ModuleName);
+        private static readonly Logger Log = new Logger(typeof(Plugin), Module.Name);
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_set_pointer",
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
@@ -32,13 +31,13 @@ namespace FaderSync.OBS
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
         public static unsafe bool obs_module_load()
         {
-            Log.Info("Loading Plugin...");
+            Log.Info($"Loading {Module.Name} v{Module.Version}");
             
             Log.Info("Preparing Utility Client...");
             _ = UtilitySingleton.GetInstance();
             
             Log.Info("Loading filters...");
-            GoXlrChannelSyncFilter.Register(ModuleName);
+            GoXlrChannelSyncFilter.Register(Module.Name);
             
             Log.Info("Preloading complete.");
             return true;
