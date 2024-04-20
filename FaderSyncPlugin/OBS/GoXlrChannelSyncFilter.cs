@@ -97,19 +97,25 @@ public class GoXlrChannelSyncFilter
         var channelName = Marshal.PtrToStringUTF8((IntPtr)context->ChannelName);
         
         var target = Obs.obs_filter_get_parent(context->Source);
-        var systemVolume = utility.Status?["mixers"]?[deviceSerial]?["levels"]?["volumes"]?[channelName]?
+        var systemVolume = utility.Status?["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
             .GetValue<int>() ?? 0;
 
-        // the goxlr and obs volume scale don't match 1:1. the goxlr volume floor seems to be around -60db.
-        // in obs this eqals to 0.001, so we have an effective range of 0.001 - 1.
-        // this calculates the volume based on this range.
-        //
-        // goxlr_min = 0, goxlr_max = 255
-        // obs_min = 0.001 (-60db), obs_max = 1 (0db)
-        // ((goxlr_value - goxlr_min) / (goxlr_max - goxlr_min)) * (obs_max - obs_min) + obs_min
-        float obsVolume = ((systemVolume - 0f) / (255f - 0f)) * (1f - 0.001f) + 0.001f;
+        // Ok, the GoXLR seems to decrease the volume by 1dB for every (on average) 4.85 volume steps, it
+        // doesn't appear to be an exact science, but this should get us close enough to accurate for now.
+
+        // So, start simply, how many multiples of 4.85 are we below max (number of dB we need to decrase by)?
+        float utilityBase = (255f - (float)systemVolume) / 4.85f;
+
+        // Below 140, the adjustment increases, so we need to accomdate for that here.. 
+        if (systemVolume < 140) {
+            var count = 140 - systemVolume;
+            utilityBase += count * 0.115f;
+        }
+
+        // Now we convert this into a OBS value...
+        float obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
         
-        // update volume
+        // Update OBS Volume
         Obs.obs_source_set_volume(target, obsVolume);
     }
     
