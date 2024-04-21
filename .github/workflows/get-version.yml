@@ -17,4 +17,4 @@ jobs:
         uses: actions/checkout@v4
       - name: "Store Version"
         id: store_version
-        run: echo "version=$(grep -oP '<Version>\K[^<]+' ./FaderSyncPlugin/FaderSyncPlugin.csproj" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(grep -oP '<Version>\K[^<]+' ./FaderSyncPlugin/FaderSyncPlugin.csproj)" >> "$GITHUB_OUTPUT"
