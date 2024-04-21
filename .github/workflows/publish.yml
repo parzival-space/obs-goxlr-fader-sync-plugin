@@ -1,8 +1,12 @@
 name: Publish Solution
 on: [ workflow_dispatch, workflow_call ]
 jobs:
+  get_version:
+    uses: ./.github/workflows/get-version.yml
+    
   publish_windows:
     name: "Create Windows Artifacts"
+    needs: [ get_version ]
     runs-on: windows-latest
     steps:
       - name: "Checkout Repository"
@@ -12,7 +16,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: "Build Solution"
-        run: dotnet publish -r win-x64 --self-contained
+        run: dotnet publish -r win-x64 --self-contained -p:Version="${{ needs.get_version.outputs.version }}" -p:FileVersion="${{ needs.get_version.outputs.version }}" -p:InformationalVersion="${{ needs.get_version.outputs.version }}"
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
@@ -21,6 +25,7 @@ jobs:
   
   publish_linux:
     name: "Create Linux Artifacts"
+    needs: [ get_version ]
     runs-on: ubuntu-22.04
     steps:
       - name: "Checkout Repository"
@@ -34,7 +39,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: "Build Solution"
-        run: dotnet publish -r linux-x64 --self-contained
+        run: dotnet publish -r linux-x64 --self-contained -p:Version="${{ needs.get_version.outputs.version }}" -p:FileVersion="${{ needs.get_version.outputs.version }}" -p:InformationalVersion="${{ needs.get_version.outputs.version }}"
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
