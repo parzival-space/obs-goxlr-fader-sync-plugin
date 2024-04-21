@@ -1,0 +1,30 @@
+name: Create Release Draft
+on: workflow_dispatch
+jobs: 
+  build:
+    uses: ./.github/workflows/build.yml
+  
+  get_version:
+    uses: ./.github/workflows/get-version.yml
+  
+  publish:
+    uses: ./.github/workflows/release.yml
+    
+  create_release_draft:
+    needs: [ get_version, publish ]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Download Artifacts"
+        uses: actions/download-artifact@v4
+      - name: "Create Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "New Release ${{ needs.get_version.outputs.version }}"
+          tag_name: "v${{ needs.get_version.outputs.version }}"
+          body: "TODO: Create Changelog"
+          draft: true
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: |
+            ./windows-artifact/*.dll
+            ./linux-artifact/*.so

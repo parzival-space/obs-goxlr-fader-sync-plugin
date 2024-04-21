@@ -1,8 +1,8 @@
-name: Publish Solution
-on: [ workflow_dispatch, workflow_call ]
+name: Build Solution
+on: [ push, pull_request, workflow_call ]
 jobs:
   publish_windows:
-    name: "Create Windows Artifacts"
+    name: "Build for Windows"
     runs-on: windows-latest
     steps:
       - name: "Checkout Repository"
@@ -12,15 +12,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: "Build Solution"
-        run: dotnet publish -r win-x64 --self-contained
-      - name: "Upload Artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-artifact
-          path: ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
+        run: dotnet build
   
   publish_linux:
-    name: "Create Linux Artifacts"
+    name: "Build for Linux"
     runs-on: ubuntu-22.04
     steps:
       - name: "Checkout Repository"
@@ -34,9 +29,4 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: "Build Solution"
-        run: dotnet publish -r linux-x64 --self-contained
-      - name: "Upload Artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-artifact
-          path: ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
+        run: dotnet build

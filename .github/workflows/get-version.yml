@@ -1,0 +1,20 @@
+name: "Get Project Version"
+on:
+  workflow_call: 
+    outputs:
+      version:
+        description: "The FaderSyncPlugin Version Number"
+        value: ${{ jobs.get_version.outputs.version }}
+        
+jobs: 
+  get_version:
+    name: "Get Version"
+    runs-on: Ubuntu-22.04
+    outputs: 
+      version: ${{ steps.store_version.outputs.version }}
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Store Version"
+        id: store_version
+        run: echo "version=$(grep -oP '<Version>\K[^<]+' ./FaderSyncPlugin/FaderSyncPlugin.csproj" >> "$GITHUB_OUTPUT"
