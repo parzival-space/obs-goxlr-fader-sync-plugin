@@ -1,4 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <!-- This Version will be used in CI -->
+        <Version>0.0.1-preview</Version>
+    </PropertyGroup>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -12,8 +17,6 @@
         <IsAotCompatible>true</IsAotCompatible>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <RootNamespace>FaderSync</RootNamespace>
-        
-        <Version>0.0.1-preview</Version>
     </PropertyGroup>
 
     <!-- 
