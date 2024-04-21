@@ -117,18 +117,19 @@ public class GoXlrChannelSyncFilter
         
         // check if channel is muted
         bool isMuted = false;
-        JsonObject faderStatus = (JsonObject) utility.Status?["mixers"]?[deviceSerial ?? ""]?["fader_status"]!;
-
-        foreach (var faderEntry in faderStatus)
+        JsonObject? faderStatus = (JsonObject) utility.Status?["mixers"]?[deviceSerial ?? ""]?["fader_status"];
+        if (faderStatus != null)
         {
-            if (faderEntry.Value?["channel"]?.GetValue<string>() != channelName) continue;
+            foreach (var faderEntry in faderStatus)
+            {
+                if (faderEntry.Value?["channel"]?.GetValue<string>() != channelName) continue;
             
-            isMuted = faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToAll" ||
-                      (faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToX" &&
-                       faderEntry.Value?["mute_type"]?.GetValue<string>() == "ToStream");
-            break;
+                isMuted = faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToAll" ||
+                          (faderEntry.Value?["mute_state"]?.GetValue<string>() == "MutedToX" &&
+                           faderEntry.Value?["mute_type"]?.GetValue<string>() == "ToStream");
+                break;
+            }
         }
-        
         
         // Update OBS Volume
         Obs.obs_source_set_volume(target,  obsVolume);
