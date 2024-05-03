@@ -103,7 +103,7 @@ public class Utility : WebsocketClient
         // find socket address
         string host = status["Status"]?["config"]?["http_settings"]?["bind_address"]?.GetValue<string>() ?? "";
         Int32 port = status["Status"]?["config"]?["http_settings"]?["port"]?.GetValue<Int32>() ?? 0;
-        await this.ConnectAsync($"ws://{host}:{port}/api/websocket");
+        await this.ConnectAsync($"ws://{(host == "0.0.0.0" ? "127.0.0.1" : host)}:{port}/api/websocket");
     }
 
     public new async Task ConnectAsync(string uri)
