@@ -2,7 +2,7 @@
     
     <PropertyGroup>
         <!-- This Version will be used in CI -->
-        <Version>0.0.1-preview</Version>
+        <Version>0.0.2-preview</Version>
     </PropertyGroup>
 
     <PropertyGroup>
