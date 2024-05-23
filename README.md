@@ -1,5 +1,5 @@
 ﻿# GoXLR Fader Sync Plugin
-An OBS Studio Plugin that enables the synchronizing the volume slider of an audio source with an audio channel from your GoXLR. 
+An OBS Studio Plugin that enables synchronizing the volume slider of an audio source with an audio channel from your GoXLR. 
 This allows you to manage the volume of audio sources using the GoXLR's faders.
 
 This plugin is essentially a port of the [goxlr-obs-fader-sync](https://github.com/FrostyCoolSlug/goxlr-obs-fader-sync) 
