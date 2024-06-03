@@ -130,9 +130,9 @@ public class WebsocketClient : IDisposable
         this.OnDisconnected?.Invoke(this, "Connection closed.");
         
         this._cancellationTokenSource.Cancel();
-        var shutdownSuccessfull = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
             TimeSpan.FromSeconds(5));
-        if (!shutdownSuccessfull)
+        if (!shutdownSuccessful)
         {
             this.OnError?.Invoke(this, new Exception("Failed to dispose tasks."));
             return;
@@ -155,9 +155,9 @@ public class WebsocketClient : IDisposable
     {
         this._cancellationTokenSource.Cancel();
 
-        var shutdownSuccessfull = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
             TimeSpan.FromSeconds(5));
-        if (!shutdownSuccessfull)
+        if (!shutdownSuccessful)
         {
             this.OnError?.Invoke(this, new Exception("Failed to dispose tasks."));
             return;
