@@ -142,9 +142,6 @@ public class GoXlrChannelSyncFilter
         var properties = ObsProperties.obs_properties_create();
 
         fixed (byte*
-               tWarnTitle = "Attention"u8.ToArray(),
-               tWarnMessage = "The GoXLR Utility is currently not running."u8.ToArray(),
-
                // add channels
                sChannelNameId = "CHANNEL_NAME"u8.ToArray(),
                sChannelNameDescription = "Channel Name"u8.ToArray(),
