@@ -142,20 +142,58 @@ public class GoXlrChannelSyncFilter
         var properties = ObsProperties.obs_properties_create();
 
         fixed (byte*
-               tWarnTitle = "Attention"u8.ToArray(),
-               tWarnMessage = "The GoXLR Utility is currently not running."u8.ToArray(),
+            // device serial input
+            sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(),
+            sDeviceSerialDescription = "Device Serial"u8.ToArray(),
+            
+            // add channels
+            sChannelNameId = "CHANNEL_NAME"u8.ToArray(),
+            sChannelNameDescription = "Channel Name"u8.ToArray(),
 
-               // add channels
-               sChannelNameId = "CHANNEL_NAME"u8.ToArray(),
-               sChannelNameDescription = "Channel Name"u8.ToArray(),
-
-               // device serial input
-               sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(),
-               sDeviceSerialDescription = "Device Serial"u8.ToArray())
+            // channel names
+            sChannelMic = "Microphone"u8.ToArray(),
+            sChannelMicId = "Mic"u8.ToArray(),
+            sChannelChat = "Chat"u8.ToArray(),
+            sChannelChatId = "Chat"u8.ToArray(),
+            sChannelMusic = "Music"u8.ToArray(),
+            sChannelMusicId = "Music"u8.ToArray(),
+            sChannelGame = "Game"u8.ToArray(),
+            sChannelGameId = "Game"u8.ToArray(),
+            sChannelConsole = "Console"u8.ToArray(),
+            sChannelConsoleId = "Console"u8.ToArray(),
+            sChannelLineIn = "Line In"u8.ToArray(),
+            sChannelLineInId = "LineIn"u8.ToArray(),
+            sChannelSystem = "System"u8.ToArray(),
+            sChannelSystemId = "System"u8.ToArray(),
+            sChannelSample = "Samples / VOD"u8.ToArray(),
+            sChannelSampleId = "Sample"u8.ToArray(),
+            sChannelHeadphones = "Headphones"u8.ToArray(),
+            sChannelHeadphonesId = "Headphones"u8.ToArray(),
+            sChannelMicMonitor = "Mic Monitor"u8.ToArray(),
+            sChannelMicMonitorId = "MicMonitor"u8.ToArray(),
+            sChannelLineOut = "Line Out"u8.ToArray(),
+            sChannelLineOutId = "LineOut"u8.ToArray()
+            )
         {
-            // channel name text field
-            ObsProperties.obs_properties_add_text(properties, (sbyte*)sChannelNameId, (sbyte*)sChannelNameDescription,
-                obs_text_type.OBS_TEXT_DEFAULT);
+            // channel selection list
+            var channelList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sChannelNameId,
+                (sbyte*)sChannelNameDescription, obs_combo_type.OBS_COMBO_TYPE_LIST,
+                obs_combo_format.OBS_COMBO_FORMAT_STRING);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMic, (sbyte*)sChannelMicId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelChat, (sbyte*)sChannelChatId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMusic, (sbyte*)sChannelMusicId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelGame, (sbyte*)sChannelGameId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelConsole, (sbyte*)sChannelConsoleId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineIn, (sbyte*)sChannelLineInId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelSystem, (sbyte*)sChannelSystemId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelSample, (sbyte*)sChannelSampleId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelHeadphones, (sbyte*)sChannelHeadphonesId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMicMonitor, (sbyte*)sChannelMicMonitorId);
+            ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineOut, (sbyte*)sChannelLineOutId);
+            
+            // // channel name text field
+            // ObsProperties.obs_properties_add_text(properties, (sbyte*)sChannelNameId, (sbyte*)sChannelNameDescription,
+            //     obs_text_type.OBS_TEXT_DEFAULT);
 
             // device serial text field
             ObsProperties.obs_properties_add_text(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
