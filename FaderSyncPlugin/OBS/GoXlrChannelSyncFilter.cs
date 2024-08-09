@@ -283,6 +283,7 @@ public class GoXlrChannelSyncFilter
         }
     }
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
     private unsafe struct FilterContext
     {
         public obs_source* Source;
@@ -292,4 +293,5 @@ public class GoXlrChannelSyncFilter
         public sbyte* DeviceSerial;
         public sbyte* ChannelName;
     }
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 }
