@@ -133,7 +133,7 @@ public class WebsocketClient : IDisposable
         this.OnDisconnected?.Invoke(this, "Connection closed.");
         
         await _cancellationTokenSource.CancelAsync();
-        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask!, this._connectionTask! },
             TimeSpan.FromSeconds(5));
         if (!shutdownSuccessful)
         {
@@ -167,7 +167,7 @@ public class WebsocketClient : IDisposable
     {
         this._cancellationTokenSource.Cancel();
 
-        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask!, this._connectionTask! },
             TimeSpan.FromSeconds(5));
         if (!shutdownSuccessful)
         {
