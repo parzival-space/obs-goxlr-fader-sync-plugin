@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using GoXLRUtilityClient.client;
+using GoXLRUtilityClient.Native;
 using Json.Patch;
 
 namespace GoXLRUtilityClient;
@@ -13,23 +13,23 @@ public class Utility : WebsocketClient
     
     public JsonNode Status;
 
-    public Utility() : base()
+    public Utility()
     {
         this.Status = JsonNode.Parse("{}")!;
         
         // basic message handler
-        base.OnMessage += (object? sender, string message) =>
+        OnMessage += (_, message) =>
         {
             try
             {
                 var jsonNode = JsonNode.Parse(message);
 
                 // test if message is valid
-                if (jsonNode!["id"] == null || jsonNode!["data"] == null) return;
+                if (jsonNode!["id"] == null || jsonNode["data"] == null) return;
 
-                var isPatchMessage = jsonNode!["data"]!["Patch"] != null;
-                var id = jsonNode!["id"]!.GetValue<ulong>();
-                var data = jsonNode!["data"]!;
+                var isPatchMessage = jsonNode["data"]!["Patch"] != null;
+                var id = jsonNode["id"]!.GetValue<ulong>();
+                var data = jsonNode["data"]!;
 
                 this.OnMessageReceived?.Invoke(this, new MessageData(id, data, isPatchMessage));
 
@@ -37,7 +37,7 @@ public class Utility : WebsocketClient
                 if (isPatchMessage)
                 {
                     var patchString = data["Patch"]!.ToJsonString();
-                    var patch = JsonSerializer.Deserialize<JsonPatch>(patchString);
+                    var patch = JsonSerializer.Deserialize<JsonPatch>(patchString); // FIXME: can break functionality when AOT compiling
                     var resultResult = patch?.Apply(this.Status);
                     this.Status = resultResult!.Result!;
                 }
@@ -48,7 +48,7 @@ public class Utility : WebsocketClient
             } // nothing
         };
 
-        base.OnDisconnected += async (object? sender, string message) => {
+        OnDisconnected += (_, message) => {
             Console.WriteLine("Disconnected from Host: {0}", message);
 
             // Reset the status, so Upstream code knows we're not connected.
@@ -90,7 +90,7 @@ public class Utility : WebsocketClient
         }
     }
 
-    public new async Task ConnectAsync()
+    public async Task ConnectAsync()
     {
         String pipeName = OperatingSystem.IsWindows() ? "@goxlr.socket" : "/tmp/goxlr.socket";
         SocketClient socketClient = new SocketClient(pipeName);
@@ -127,8 +127,8 @@ public class Utility : WebsocketClient
         // request status
         var statusRequest = JsonNode.Parse("{}");
         statusRequest!["id"] = requestId;
-        statusRequest!["data"] = "GetStatus";
-        await base.SendMessage(statusRequest.ToJsonString());
+        statusRequest["data"] = "GetStatus";
+        await SendMessage(statusRequest.ToJsonString());
 
         var result = await this.AwaitResponse(requestId);
         if (result != null) this.Status = result["Status"]!;

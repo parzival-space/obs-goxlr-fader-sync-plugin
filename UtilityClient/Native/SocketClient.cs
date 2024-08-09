@@ -1,7 +1,7 @@
 using System.IO.Pipes;
 using System.Text;
 
-namespace GoXLRUtilityClient.client;
+namespace GoXLRUtilityClient.Native;
 
 public class SocketClient : IDisposable
 {
@@ -41,7 +41,7 @@ public class SocketClient : IDisposable
         // read message length
         byte[] lengthBytes;
         try { lengthBytes = _reader.ReadBytes(4); }
-        catch (IOException) { return null; }
+        catch (IOException) { return ""; }
         
         if (BitConverter.IsLittleEndian) Array.Reverse(lengthBytes);
         var messageLength = BitConverter.ToUInt32(lengthBytes);
@@ -65,6 +65,5 @@ public class SocketClient : IDisposable
         
         _reader.Dispose();
         _writer.Dispose();
-        _client.Dispose();
     }
 }

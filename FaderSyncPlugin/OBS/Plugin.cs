@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using FaderSync.GoXLR;
 using ObsInterop;
 
@@ -13,7 +12,7 @@ namespace FaderSync.OBS
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
         public static unsafe void obs_module_set_pointer(obs_module* obsModulePointer)
         {
-
+            // do nothing, needs to exist for OBS to load
         }
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_ver",
@@ -29,7 +28,7 @@ namespace FaderSync.OBS
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_load",
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static unsafe bool obs_module_load()
+        public static bool obs_module_load()
         {
             Log.Info($"Loading {Module.Name} v{Module.Version}");
             
@@ -62,14 +61,14 @@ namespace FaderSync.OBS
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
         public static unsafe void obs_module_set_locale(char* locale)
         {
-
+            // TODO: add locale support
         }
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_free_locale",
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static unsafe void obs_module_free_locale()
+        public static void obs_module_free_locale()
         {
-
+            // do nothing, needs to exist for OBS to load
         }
     }
 }

@@ -1,17 +1,17 @@
 using System.Net.WebSockets;
 using System.Text;
 
-namespace GoXLRUtilityClient.client;
+namespace GoXLRUtilityClient.Native;
 
 public class WebsocketClient : IDisposable
 {
     private ClientWebSocket _client = new();
 
     private CancellationTokenSource _cancellationTokenSource = new();
-    private Task _receiveMessageTask;
-    private Task _connectionTask;
+    private Task? _receiveMessageTask;
+    private Task? _connectionTask;
 
-    private bool _isConnected = false;
+    private bool _isConnected;
 
     public event EventHandler<string>? OnConnected;
     public event EventHandler<string>? OnDisconnected;
@@ -31,7 +31,7 @@ public class WebsocketClient : IDisposable
                 continue;
             }
 
-            WebSocketReceiveResult result = null;
+            WebSocketReceiveResult? result = null;
             try
             {
                 result = await _client.ReceiveAsync(new ArraySegment<byte>(buffer),
@@ -54,11 +54,10 @@ public class WebsocketClient : IDisposable
                     {
                         var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                         this.OnMessage?.Invoke(this, message);
-                        break;
                     }
                     else
                     {
-                        memoryStream.Write(buffer, 0, result.Count);
+                        await memoryStream.WriteAsync(buffer, 0, result.Count);
                         if (result.EndOfMessage)
                         {
                             var message = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
@@ -73,12 +72,11 @@ public class WebsocketClient : IDisposable
                     hasReceivedCloseMessage = true;
     
                     // If the server initiates the close handshake, handle it
-                    Task.Run(DisconnectAsync);
+                    await Task.Run(DisconnectAsync);
                     break;
                 
-                case WebSocketMessageType.Binary:
                 default:
-                    // This wont occur with the Utility, but we need to trigger DisconnectAsync to perform tidying up!
+                    // This won't occur with the Utility, but we need to trigger DisconnectAsync to perform tidying up!
                     await _client.CloseAsync(WebSocketCloseStatus.ProtocolError, "Only Text is supported.", CancellationToken.None);
                     this.OnDisconnected?.Invoke(this, "Connection closed because server tried to send binary or invalid message.");
                     break;
@@ -100,10 +98,7 @@ public class WebsocketClient : IDisposable
                 case WebSocketState.Aborted:
                 case WebSocketState.Closed:
                     // Trigger an internal disconnect to clean resources.
-                    Task.Run(DisconnectAsync);
-                    break;
-                
-                default:
+                    await Task.Run(DisconnectAsync);
                     break;
             }
 
@@ -121,7 +116,7 @@ public class WebsocketClient : IDisposable
         return await this.ConnectAsync(new Uri(uri));
     }
 
-    public async Task<bool> ConnectAsync(Uri uri)
+    protected async Task<bool> ConnectAsync(Uri uri)
     {   
         this._receiveMessageTask = ReceiveMessageTask();
         this._connectionTask = ConnectionTask();
@@ -129,7 +124,7 @@ public class WebsocketClient : IDisposable
         return this._client.State == WebSocketState.Open;
     }
 
-    public async Task DisconnectAsync()
+    protected async Task DisconnectAsync()
     {
         // Only attempt to close the socket if it's not already closed
         if (this._client.State != WebSocketState.Aborted && this._client.State != WebSocketState.Closed) {
@@ -137,8 +132,8 @@ public class WebsocketClient : IDisposable
         }
         this.OnDisconnected?.Invoke(this, "Connection closed.");
         
-        this._cancellationTokenSource.Cancel();
-        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        await _cancellationTokenSource.CancelAsync();
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask!, this._connectionTask! },
             TimeSpan.FromSeconds(5));
         if (!shutdownSuccessful)
         {
@@ -146,8 +141,8 @@ public class WebsocketClient : IDisposable
             return;
         }
         
-        this._receiveMessageTask.Dispose();
-        this._connectionTask.Dispose();
+        this._receiveMessageTask!.Dispose();
+        this._connectionTask!.Dispose();
 
         // Dispose of, and create a new client / Token for future connections
         this._client.Dispose();
@@ -159,7 +154,7 @@ public class WebsocketClient : IDisposable
         this._isConnected = false;
     }
 
-    public async Task SendMessage(string message)
+    protected async Task SendMessage(string message)
     {
         await this._client.SendAsync(
             new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)),
@@ -172,7 +167,7 @@ public class WebsocketClient : IDisposable
     {
         this._cancellationTokenSource.Cancel();
 
-        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask, this._connectionTask },
+        var shutdownSuccessful = Task.WaitAll(new[] { this._receiveMessageTask!, this._connectionTask! },
             TimeSpan.FromSeconds(5));
         if (!shutdownSuccessful)
         {
@@ -182,7 +177,7 @@ public class WebsocketClient : IDisposable
         
         this._cancellationTokenSource.Dispose();
         this._client.Dispose();
-        this._receiveMessageTask.Dispose();
-        this._connectionTask.Dispose();
+        this._receiveMessageTask!.Dispose();
+        this._connectionTask!.Dispose();
     }
 }
