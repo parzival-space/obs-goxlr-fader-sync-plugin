@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -140,11 +141,22 @@ public class GoXlrChannelSyncFilter
     private static unsafe obs_properties* GetProperties(void* data)
     {
         var properties = ObsProperties.obs_properties_create();
+        var context = (FilterContext*)data;
+        
+        // Get the currently configured Serial as a String (we'll need this later)
+        var serial = Marshal.PtrToStringUTF8((IntPtr)context->DeviceSerial);
+        var deviceSerialError = "---ERROR---";
 
         fixed (byte*
             // device serial input
             sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(),
             sDeviceSerialDescription = "Device Serial"u8.ToArray(),
+
+            // We need a 'Default' serial in case something is wrong when loading
+            sDeviceSerialError = Encoding.UTF8.GetBytes(deviceSerialError),
+            sDeviceSerialDisconnected = "Error Connecting to the GoXLR Utility"u8.ToArray(),
+            sDeviceSerialNoDevices = "No GoXLR Devices Detected"u8.ToArray(),
+            sDeviceSerialSelect = "Select GoXLR"u8.ToArray(),
             
             // add channels
             sChannelNameId = "CHANNEL_NAME"u8.ToArray(),
@@ -191,15 +203,69 @@ public class GoXlrChannelSyncFilter
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMicMonitor, (sbyte*)sChannelMicMonitorId);
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineOut, (sbyte*)sChannelLineOutId);
             
-            // // channel name text field
-            // ObsProperties.obs_properties_add_text(properties, (sbyte*)sChannelNameId, (sbyte*)sChannelNameDescription,
-            //     obs_text_type.OBS_TEXT_DEFAULT);
 
-            // device serial text field
-            ObsProperties.obs_properties_add_text(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
-                obs_text_type.OBS_TEXT_DEFAULT);
+            // Create the Serial Dropdown..
+            var deviceList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
+                obs_combo_type.OBS_COMBO_TYPE_LIST, obs_combo_format.OBS_COMBO_FORMAT_STRING);
 
-            //ObsProperties.obs_properties_add_text(properties, (sbyte*)tWarnTitle, (sbyte*)tWarnMessage, obs_text_type.OBS_TEXT_INFO);
+
+            // Before we Proceed, we need to fetch a list of the available GoXLRs on the System..
+            var utility = UtilitySingleton.GetInstance();
+            var mixers = (JsonObject)utility.Status?["mixers"];
+            var locatedDevices = new ArrayList();
+            var forcedSerial = false;
+
+            // Iterate the status and add all the currently connected serials to a list.
+            if (mixers != null) {
+                foreach (var mixer in mixers) {
+                    locatedDevices.Add(mixer.Key);
+                }
+            }
+
+            // Get an initial count of devices which we'll use for stuff later!
+            var locatedDeviceCount = locatedDevices.Count;
+
+            // If the user has perviously configured a GoXLR but it's not currently attached to the Utility, we need to
+            // force the serial into the list to prevent arbitrary device switching later on. We'll also flag this as a
+            // forced entry so we can appropriately label it.
+            if (serial != "" && !locatedDevices.Contains(serial)) {
+                locatedDevices.Add(serial);
+                forcedSerial = true;
+            }
+
+            if (locatedDevices.Count == 0) {
+                // We're in some kind of error state. Either the utility connection is broken or there are no GoXLRs attached, and the
+                // user hasn't previously defined a GoXLR. In this case we'll forcably add the 'Error' serial to the list so we can
+                // display the problem to the user in the drop-down.
+                locatedDevices.Add(deviceSerialError);
+            }
+
+            // Start filling out the list..
+            foreach (var located in locatedDevices) {
+                fixed (byte* sSerial = Encoding.UTF8.GetBytes((string)located)) {
+                    if (located.Equals(deviceSerialError) && mixers == null) {
+                        // Unable to Connect to the Utility, no GoXLR previously configured in the Filter
+                        ObsProperties.obs_property_list_add_string(deviceList, (sbyte*)sDeviceSerialDisconnected, (sbyte*)sDeviceSerialError);
+                    } else if (located.Equals(deviceSerialError) && locatedDeviceCount == 0) {
+                        // No GoXLR Devices Attached, no GoXLR previously configured in the Filter
+                        ObsProperties.obs_property_list_add_string(deviceList, (sbyte*)sDeviceSerialNoDevices, (sbyte*)sDeviceSerialError);
+                    } else if (located.Equals(deviceSerialError) && locatedDeviceCount > 0) {
+                        // In this scenario we've left an Error State. By not pushing the Error Serial into the list OBS will automatically
+                        // switch the dropdown to the first entry (a real GoXLR Serial) forcing an update and taking us out of the error state.
+                    } else {
+                        var title = (string)located;
+
+                        // Has this device been forced into the located list due to it being disconnected?
+                        if (forcedSerial && located.Equals(serial)) {
+                            // We can do a *LOT* better than this and potentially check WHY it's disconnected..
+                            title = String.Format("{0} - Disconnected", located);
+                        }
+                        fixed(byte* sTitle = Encoding.UTF8.GetBytes(title)) {
+                            ObsProperties.obs_property_list_add_string(deviceList, (sbyte*)sTitle, (sbyte*)sSerial);
+                        }
+                    }
+                }
+            }
         }
 
         return properties;

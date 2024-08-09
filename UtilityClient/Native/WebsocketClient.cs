@@ -74,6 +74,7 @@ public class WebsocketClient : IDisposable
                 
                 case WebSocketMessageType.Binary:
                 default:
+                    // This wont occur with the Utility, but we need to trigger DisconnectAsync to perform tidying up!
                     await _client.CloseAsync(WebSocketCloseStatus.ProtocolError, "Only Text is supported.", CancellationToken.None);
                     this.OnDisconnected?.Invoke(this, "Connection closed because server tried to send binary or invalid message.");
                     break;
@@ -94,8 +95,8 @@ public class WebsocketClient : IDisposable
                     
                 case WebSocketState.Aborted:
                 case WebSocketState.Closed:
-                    if (this._isConnected) this.OnDisconnected?.Invoke(this, "Connection closed.");
-                    this._isConnected = false;
+                    // Trigger an internal disconnect to clean resources.
+                    Task.Run(DisconnectAsync);
                     break;
                 
                 default:
@@ -126,7 +127,10 @@ public class WebsocketClient : IDisposable
 
     public async Task DisconnectAsync()
     {
-        await this._client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+        // Only attempt to close the socket if it's not already closed
+        if (this._client.State != WebSocketState.Aborted && this._client.State != WebSocketState.Closed) {
+            await this._client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+        }
         this.OnDisconnected?.Invoke(this, "Connection closed.");
         
         this._cancellationTokenSource.Cancel();
@@ -140,6 +144,15 @@ public class WebsocketClient : IDisposable
         
         this._receiveMessageTask.Dispose();
         this._connectionTask.Dispose();
+
+        // Dispose of, and create a new client / Token for future connections
+        this._client.Dispose();
+        this._client = new();
+        this._cancellationTokenSource.Dispose();
+        this._cancellationTokenSource = new();
+
+        // Flag the connection as disconnected
+        this._isConnected = false;
     }
 
     public async Task SendMessage(string message)

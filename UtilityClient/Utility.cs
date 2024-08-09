@@ -47,6 +47,13 @@ public class Utility : WebsocketClient
                 OnException?.Invoke(this, je);
             } // nothing
         };
+
+        base.OnDisconnected += async (object? sender, string message) => {
+            Console.WriteLine("Disconnected from Host: {0}", message);
+
+            // Reset the status, so Upstream code knows we're not connected.
+            this.Status = JsonNode.Parse("{}")!;
+        };
     }
 
     private async Task<JsonNode?> AwaitResponse(uint operationId)
