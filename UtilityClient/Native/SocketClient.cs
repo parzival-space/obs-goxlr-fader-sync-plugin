@@ -41,7 +41,7 @@ public class SocketClient : IDisposable
         // read message length
         byte[] lengthBytes;
         try { lengthBytes = _reader.ReadBytes(4); }
-        catch (IOException) { return null; }
+        catch (IOException) { return ""; }
         
         if (BitConverter.IsLittleEndian) Array.Reverse(lengthBytes);
         var messageLength = BitConverter.ToUInt32(lengthBytes);
