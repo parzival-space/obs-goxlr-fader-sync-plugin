@@ -65,6 +65,5 @@ public class SocketClient : IDisposable
         
         _reader.Dispose();
         _writer.Dispose();
-        _client.Dispose();
     }
 }
