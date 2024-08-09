@@ -1,7 +1,7 @@
 using System.IO.Pipes;
 using System.Text;
 
-namespace GoXLRUtilityClient.client;
+namespace GoXLRUtilityClient.Native;
 
 public class SocketClient : IDisposable
 {
