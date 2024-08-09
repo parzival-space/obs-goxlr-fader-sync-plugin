@@ -218,8 +218,7 @@ public class GoXlrChannelSyncFilter
             // Iterate the status and add all the currently connected serials to a list.
             if (mixers != null) {
                 foreach (var mixer in mixers) {
-                    var found_serial = mixer.Value?["hardware"]?["serial_number"]?.GetValue<string>();
-                    locatedDevices.Add(found_serial);
+                    locatedDevices.Add(mixer.Key);
                 }
             }
 
