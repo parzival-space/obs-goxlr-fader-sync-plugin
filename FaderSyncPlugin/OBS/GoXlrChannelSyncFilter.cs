@@ -90,7 +90,7 @@ public class GoXlrChannelSyncFilter
         var channelName = Marshal.PtrToStringUTF8((IntPtr)context->ChannelName);
 
         var target = Obs.obs_filter_get_parent(context->Source);
-        var systemVolume = utility.Status?["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
+        var systemVolume = utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
             .GetValue<int>() ?? 0;
 
         // Ok, the GoXLR seems to decrease the volume by 1dB for every (on average) 4.85 volume steps, it
@@ -111,7 +111,7 @@ public class GoXlrChannelSyncFilter
 
         // check if channel is muted
         var isMuted = false;
-        var faderStatus = (JsonObject)utility.Status?["mixers"]?[deviceSerial ?? ""]?["fader_status"];
+        var faderStatus = (JsonObject?)utility.Status["mixers"]?[deviceSerial ?? ""]?["fader_status"];
         if (faderStatus != null)
             foreach (var faderEntry in faderStatus)
             {
@@ -208,7 +208,7 @@ public class GoXlrChannelSyncFilter
             
             // Before we Proceed, we need to fetch a list of the available GoXLRs on the System..
             var utility = UtilitySingleton.GetInstance();
-            var mixers = (JsonObject)utility.Status?["mixers"];
+            var mixers = (JsonObject?)utility.Status["mixers"];
             var locatedDevices = new ArrayList();
             var forcedSerial = false;
 
