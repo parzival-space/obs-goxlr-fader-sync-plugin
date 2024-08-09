@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using GoXLRUtilityClient.client;
+using GoXLRUtilityClient.Native;
 using Json.Patch;
 
 namespace GoXLRUtilityClient;
