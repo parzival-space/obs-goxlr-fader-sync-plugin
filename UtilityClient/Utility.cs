@@ -37,7 +37,7 @@ public class Utility : WebsocketClient
                 if (isPatchMessage)
                 {
                     var patchString = data["Patch"]!.ToJsonString();
-                    var patch = JsonSerializer.Deserialize<JsonPatch>(patchString);
+                    var patch = JsonSerializer.Deserialize<JsonPatch>(patchString); // FIXME: can break functionality when AOT compiling
                     var resultResult = patch?.Apply(this.Status);
                     this.Status = resultResult!.Result!;
                 }
