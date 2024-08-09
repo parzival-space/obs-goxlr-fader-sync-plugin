@@ -106,7 +106,7 @@ public class GoXlrChannelSyncFilter
             utilityBase += count * 0.115f;
         }
 
-        // Now we convert this into a OBS value...
+        // Now we convert this into an OBS value...
         var obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
 
         // check if channel is muted
@@ -134,7 +134,7 @@ public class GoXlrChannelSyncFilter
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static unsafe void GetDefaults(obs_data* settings)
     {
-        // Todo: implement
+        // do nothing
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -186,7 +186,7 @@ public class GoXlrChannelSyncFilter
             sChannelLineOutId = "LineOut"u8.ToArray()
             )
         {
-            // Create the Serial Dropdown..
+            // Create the Serial Dropdown...
             var deviceList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
                 obs_combo_type.OBS_COMBO_TYPE_LIST, obs_combo_format.OBS_COMBO_FORMAT_STRING);
             
@@ -206,7 +206,7 @@ public class GoXlrChannelSyncFilter
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMicMonitor, (sbyte*)sChannelMicMonitorId);
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineOut, (sbyte*)sChannelLineOutId);
             
-            // Before we Proceed, we need to fetch a list of the available GoXLRs on the System..
+            // Before we Proceed, we need to fetch a list of the available GoXLRs on the System...
             var utility = UtilitySingleton.GetInstance();
             var mixers = (JsonObject?)utility.Status["mixers"];
             var locatedDevices = new ArrayList();
@@ -222,9 +222,9 @@ public class GoXlrChannelSyncFilter
             // Get an initial count of devices which we'll use for stuff later!
             var locatedDeviceCount = locatedDevices.Count;
 
-            // If the user has perviously configured a GoXLR but it's not currently attached to the Utility, we need to
+            // If the user has previously configured a GoXLR, but it's not currently attached to the Utility, we need to
             // force the serial into the list to prevent arbitrary device switching later on. We'll also flag this as a
-            // forced entry so we can appropriately label it.
+            // forced entry, so we can appropriately label it.
             if (serial != "" && !locatedDevices.Contains(serial)) {
                 locatedDevices.Add(serial);
                 forcedSerial = true;
@@ -232,12 +232,12 @@ public class GoXlrChannelSyncFilter
 
             if (locatedDevices.Count == 0) {
                 // We're in some kind of error state. Either the utility connection is broken or there are no GoXLRs attached, and the
-                // user hasn't previously defined a GoXLR. In this case we'll forcably add the 'Error' serial to the list so we can
+                // user hasn't previously defined a GoXLR. In this case we'll forcibly add the 'Error' serial to the list, so we can
                 // display the problem to the user in the drop-down.
                 locatedDevices.Add(deviceSerialError);
             }
 
-            // Start filling out the list..
+            // Start filling out the list...
             foreach (var located in locatedDevices) {
                 fixed (byte* sSerial = Encoding.UTF8.GetBytes((string)located)) {
                     if (located.Equals(deviceSerialError) && mixers == null) {
@@ -254,8 +254,8 @@ public class GoXlrChannelSyncFilter
 
                         // Has this device been forced into the located list due to it being disconnected?
                         if (forcedSerial && located.Equals(serial)) {
-                            // We can do a *LOT* better than this and potentially check WHY it's disconnected..
-                            title = String.Format("{0} - Disconnected", located);
+                            // We can do a *LOT* better than this and potentially check WHY it's disconnected...
+                            title = $"{located} - Disconnected";
                         }
                         fixed(byte* sTitle = Encoding.UTF8.GetBytes(title)) {
                             ObsProperties.obs_property_list_add_string(deviceList, (sbyte*)sTitle, (sbyte*)sSerial);
