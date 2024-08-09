@@ -10,10 +10,10 @@ public class Logger
     
     public enum LogLevel
     {
-        ERROR = ObsBase.LOG_ERROR,
-        WARNING = ObsBase.LOG_WARNING,
-        INFO = ObsBase.LOG_INFO,
-        DEBUG = ObsBase.LOG_DEBUG,
+        Error = ObsBase.LOG_ERROR,
+        Warning = ObsBase.LOG_WARNING,
+        Info = ObsBase.LOG_INFO,
+        Debug = ObsBase.LOG_DEBUG,
     }
     
     private static unsafe void Log(LogLevel level, string text)
@@ -40,8 +40,8 @@ public class Logger
         _className = loggerClass.Name;
     }
 
-    public void Error(string message) => Log(LogLevel.ERROR, $"<{_className}> {message}");
-    public void Warning(string message) => Log(LogLevel.WARNING, $"<{_className}> {message}");
-    public void Info(string message) => Log(LogLevel.INFO, $"<{_className}> {message}");
-    public void Debug(string message) => Log(LogLevel.DEBUG, $"<{_className}> {message}");
+    public void Error(string message) => Log(LogLevel.Error, $"<{_className}> {message}");
+    public void Warning(string message) => Log(LogLevel.Warning, $"<{_className}> {message}");
+    public void Info(string message) => Log(LogLevel.Info, $"<{_className}> {message}");
+    public void Debug(string message) => Log(LogLevel.Debug, $"<{_className}> {message}");
 }
