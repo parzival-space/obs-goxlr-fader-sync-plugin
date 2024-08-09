@@ -21,6 +21,7 @@ public class WebsocketClient : IDisposable
     private async Task ReceiveMessageTask()
     {
         var memoryStream = new MemoryStream();
+        var hasReceivedCloseMessage = false;
         var buffer = new byte[1024]; // Buffer to store received data
         while (!this._cancellationTokenSource.IsCancellationRequested)
         {
@@ -68,6 +69,9 @@ public class WebsocketClient : IDisposable
                     break;
                 
                 case WebSocketMessageType.Close:
+                    if (hasReceivedCloseMessage) break;
+                    hasReceivedCloseMessage = true;
+    
                     // If the server initiates the close handshake, handle it
                     Task.Run(DisconnectAsync);
                     break;
