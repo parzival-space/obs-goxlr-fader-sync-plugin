@@ -156,7 +156,6 @@ public class GoXlrChannelSyncFilter
             sDeviceSerialError = Encoding.UTF8.GetBytes(deviceSerialError),
             sDeviceSerialDisconnected = "Error Connecting to the GoXLR Utility"u8.ToArray(),
             sDeviceSerialNoDevices = "No GoXLR Devices Detected"u8.ToArray(),
-            sDeviceSerialSelect = "Select GoXLR"u8.ToArray(),
             
             // add channels
             sChannelNameId = "CHANNEL_NAME"u8.ToArray(),
