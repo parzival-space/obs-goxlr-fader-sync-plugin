@@ -186,6 +186,10 @@ public class GoXlrChannelSyncFilter
             sChannelLineOutId = "LineOut"u8.ToArray()
             )
         {
+            // Create the Serial Dropdown..
+            var deviceList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
+                obs_combo_type.OBS_COMBO_TYPE_LIST, obs_combo_format.OBS_COMBO_FORMAT_STRING);
+            
             // channel selection list
             var channelList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sChannelNameId,
                 (sbyte*)sChannelNameDescription, obs_combo_type.OBS_COMBO_TYPE_LIST,
@@ -202,12 +206,6 @@ public class GoXlrChannelSyncFilter
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMicMonitor, (sbyte*)sChannelMicMonitorId);
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineOut, (sbyte*)sChannelLineOutId);
             
-
-            // Create the Serial Dropdown..
-            var deviceList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sDeviceSerialId, (sbyte*)sDeviceSerialDescription,
-                obs_combo_type.OBS_COMBO_TYPE_LIST, obs_combo_format.OBS_COMBO_FORMAT_STRING);
-
-
             // Before we Proceed, we need to fetch a list of the available GoXLRs on the System..
             var utility = UtilitySingleton.GetInstance();
             var mixers = (JsonObject)utility.Status?["mixers"];
