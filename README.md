@@ -5,6 +5,9 @@ This allows you to manage the volume of audio sources using the GoXLR's faders.
 This plugin is essentially a port of the [goxlr-obs-fader-sync](https://github.com/FrostyCoolSlug/goxlr-obs-fader-sync) 
 project developed by [FrostyCoolSlug](https://github.com/FrostyCoolSlug) into an OBS plugin.
 
+If you need help or encounter any problems, feel free to join the [GoXLR Utility Discord](https://discord.gg/QtHQBwnfyW) 
+or create a [new Issue](https://github.com/parzival-space/obs-goxlr-fader-sync-plugin/issues/new) in the Issues section.
+
 ## Requirements
 * [OBS Studio](https://obsproject.com/) v30.0+
 * [GoXLR Utility](https://github.com/GoXLR-on-Linux/goxlr-utility) v1.0.0+
