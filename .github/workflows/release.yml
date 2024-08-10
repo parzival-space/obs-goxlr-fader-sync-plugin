@@ -1,9 +1,6 @@
 name: Create Release Draft
 on: workflow_dispatch
 jobs: 
-  build:
-    uses: ./.github/workflows/build.yml
-  
   get_version:
     uses: ./.github/workflows/get-version.yml
   
