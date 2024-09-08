@@ -126,9 +126,16 @@ public class GoXlrChannelSyncFilter
                 break;
             }
 
-        // Update OBS Volume
-        Obs.obs_source_set_volume(target, obsVolume);
-        Obs.obs_source_set_muted(target, isMuted ? (byte)1 : (byte)0);
+        // only update channel if values changed
+        var oldMuteState = (byte)1 == Obs.obs_source_muted(target);
+        var oldVolume = Obs.obs_source_get_volume(target);
+        if (Math.Abs(oldVolume - obsVolume) > 0.0001 || isMuted != oldMuteState)
+        {
+            // Update OBS Volume
+            Obs.obs_source_set_volume(target, obsVolume);
+            Obs.obs_source_set_muted(target, isMuted ? (byte)1 : (byte)0);
+            Log.Info($"Updated volume for channel '{channelName}' to {obsVolume} (muted: {isMuted})");
+        }
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
