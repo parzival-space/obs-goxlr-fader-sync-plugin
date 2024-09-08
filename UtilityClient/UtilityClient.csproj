@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <PropertyGroup>
+        <Copyright>© Malte Linke</Copyright>
+    </PropertyGroup>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
