@@ -5,7 +5,7 @@ jobs:
     uses: ./.github/workflows/get-version.yml
   
   publish:
-    uses: ./.github/workflows/publish.yml
+    uses: ./.github/workflows/publish-solution.yml
     
   create_release_draft:
     needs: [ get_version, publish ]
