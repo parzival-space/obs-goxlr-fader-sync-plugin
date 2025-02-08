@@ -25,5 +25,5 @@ jobs:
           prerelease: true
           fail_on_unmatched_files: true
           files: |
-            ./windows-artifacts/*.dll
-            ./linux-artifacts/*.so
+            ./windows-artifacts/package/*.zip
+            ./linux-artifacts/package/*.zip
