@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: "Download Artifacts"
         uses: actions/download-artifact@v4
+        # downloaded files will be stored at ./windows-artifacts and ./linux-artifacts
+        
       - name: "Create Release"
         uses: softprops/action-gh-release@v2
         with:
@@ -23,5 +25,5 @@ jobs:
           prerelease: true
           fail_on_unmatched_files: true
           files: |
-            ./windows-artifact/*.dll
-            ./linux-artifact/*.so
+            ./windows-artifacts/*.dll
+            ./linux-artifacts/*.so
