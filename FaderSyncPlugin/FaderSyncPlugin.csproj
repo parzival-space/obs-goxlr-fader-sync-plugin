@@ -31,10 +31,12 @@
 
     <ItemGroup>
         <PackageReference Include="NetObsBindings" Version="30.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\UtilityClient\UtilityClient.csproj" />
     </ItemGroup>
+    
+    <!-- Include LICENSE file in output directory -->
+    <Target Name="CopyLicenseFileToOutput" AfterTargets="Publish">
+        <Copy SourceFiles="$(SolutionDir)LICENSE" DestinationFolder="$(PublishDir)"/>
+    </Target>
 
 </Project>
