@@ -20,7 +20,7 @@ jobs:
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: windows-artifact
+          name: windows-artifacts
           path: |
             ./FaderSyncPlugin/bin/Release/net8.0/win-x64/package/*.zip
             ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
@@ -45,7 +45,7 @@ jobs:
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: linux-artifact
+          name: linux-artifacts
           path: |
             ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/package/*.zip
             ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
