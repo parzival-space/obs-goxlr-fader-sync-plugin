@@ -108,10 +108,7 @@ public class GoXlrChannelSyncFilter
             utilityBase += count * 0.115f;
         }
         
-        Log.Info("System Volume: " + systemVolume + " dB: " + utilityBase);
         utilityBase -= (float)context->VolumeOffset;
-        Log.Info("Volume Offset: " + context->VolumeOffset);
-        Log.Info("Resulting Volume: " + (float)Math.Pow(10, -utilityBase / 20f));
 
         // Now we convert this into an OBS value...
         var obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
