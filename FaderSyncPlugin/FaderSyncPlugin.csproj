@@ -31,10 +31,31 @@
 
     <ItemGroup>
         <PackageReference Include="NetObsBindings" Version="30.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\UtilityClient\UtilityClient.csproj" />
     </ItemGroup>
+    
+    <!-- Pre-Package the plugin -->
+    <Target Name="Package" AfterTargets="Publish">
+        <PropertyGroup>
+            <PackageDir Condition="'$(PackageDir)' == ''">$([System.IO.Path]::Combine($(PublishDir),'..','package'))/</PackageDir>
+            <PackagePath Condition="'$(PackagePath)' == ''">$([System.IO.Path]::Combine($(PackageDir),'$(AssemblyName)-$(RuntimeIdentifier).zip'))</PackagePath>
+        </PropertyGroup>
+        
+        <MakeDir Directories="$(PackageDir)"/>
+        
+        <!-- OBS expects a specific directory structure for their plugins -->
+        <MakeDir Directories="$(PackageDir)package-src\bin\64bit" />
+        <MakeDir Directories="$(PackageDir)package-src\data" />
+
+        <!-- Include LICENSE file package -->
+        <Copy SourceFiles="$(SolutionDir)LICENSE" DestinationFolder="$(PackageDir)package-src\"/>
+        
+        <!-- Copy plugin files and package plugin -->
+        <ItemGroup>
+            <PublishedFiles Include="$(MSBuildProjectDirectory)\$(PublishDir)\**" />
+        </ItemGroup>
+        <Copy SourceFiles="@(PublishedFiles)" DestinationFolder="$(PackageDir)\package-src\bin\64bit"/>
+        <ZipDirectory DestinationFile="$(PackagePath)" SourceDirectory="$(PackageDir)\package-src\" Overwrite="true"/>
+    </Target>
 
 </Project>
