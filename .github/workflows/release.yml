@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: "Download Artifacts"
-        uses: actions/t@v4
+        uses: actions/download-artifact@v4
         # downloaded files will be stored at ./windows-artifacts and ./linux-artifacts
         
       - name: "Print Artifacts"
