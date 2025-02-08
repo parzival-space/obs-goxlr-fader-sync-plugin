@@ -20,8 +20,10 @@ jobs:
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: windows-artifacts
-          path: ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
+          name: windows-artifact
+          path: |
+            ./FaderSyncPlugin/bin/Release/net8.0/win-x64/package/*.zip
+            ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
   
   publish_linux:
     name: "Create Linux Artifacts"
@@ -43,5 +45,7 @@ jobs:
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: linux-artifacts
-          path: ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
+          name: linux-artifact
+          path: |
+            ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/package/*.zip
+            ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
