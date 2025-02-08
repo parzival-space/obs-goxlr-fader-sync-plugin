@@ -22,7 +22,9 @@ namespace FaderSync.OBS
             var major = (uint)Obs.Version.Major;
             var minor = (uint)Obs.Version.Minor;
             var patch = (uint)Obs.Version.Build;
-            var version = (major << 24) | (minor << 16) | patch;
+            
+            // min. supported OBS version: 30.0.0
+            var version = (major << 30) | (minor << 0) | patch;
             return version;
         }
 
