@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OBS_PATH=~/.config/obs-studio/plugins/obs-goxlr-fader-sync/bin/64bit
+OBS_PLUGIN_PATH=~/.config/obs-studio/plugins/FaderSyncPlugin
 
 # Check if OBS is running..
 pidof obs
@@ -19,10 +19,15 @@ if ! [ $? -eq 0 ]; then
 fi
 
 # Make sure the plugin path exists..
-mkdir -p $OBS_PATH
+mkdir -p "$(dirname $OBS_PLUGIN_PATH)"
 
-# Needs specific naming..
-cp FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/FaderSyncPlugin.so $OBS_PATH/obs-goxlr-fader-sync.so
+if [ -d $OBS_PLUGIN_PATH ]; then
+  echo "Removing old plugin files"
+  rm -rf "$OBS_PLUGIN_PATH"
+fi
+
+echo "Copying new plugin files"
+cp -r "./FaderSyncPlugin/bin/Release/net8.0/win-x64/package/package-src/FaderSyncPlugin" "$OBS_PLUGIN_PATH"
 
 # Fire up OBS semi-detatched, logs will go here, but you can still run shell commands :p
 obs &
