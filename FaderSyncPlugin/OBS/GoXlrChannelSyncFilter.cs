@@ -58,10 +58,11 @@ public class GoXlrChannelSyncFilter
         context->Source = source;
         context->Settings = settings;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
+            context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
         }
 
         return context;
@@ -88,6 +89,7 @@ public class GoXlrChannelSyncFilter
 
         var deviceSerial = Marshal.PtrToStringUTF8((IntPtr)context->DeviceSerial);
         var channelName = Marshal.PtrToStringUTF8((IntPtr)context->ChannelName);
+        
 
         var target = Obs.obs_filter_get_parent(context->Source);
         var systemVolume = utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
@@ -105,6 +107,8 @@ public class GoXlrChannelSyncFilter
             var count = 140 - systemVolume;
             utilityBase += count * 0.115f;
         }
+        
+        utilityBase -= (float)context->VolumeOffset;
 
         // Now we convert this into an OBS value...
         var obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
@@ -190,7 +194,11 @@ public class GoXlrChannelSyncFilter
             sChannelMicMonitor = "Mic Monitor"u8.ToArray(),
             sChannelMicMonitorId = "MicMonitor"u8.ToArray(),
             sChannelLineOut = "Line Out"u8.ToArray(),
-            sChannelLineOutId = "LineOut"u8.ToArray()
+            sChannelLineOutId = "LineOut"u8.ToArray(),
+            
+            // volume offset
+            sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(),
+            sVolumeOffsetDescription = "Volume Offset (dB)"u8.ToArray()
             )
         {
             // Create the Serial Dropdown...
@@ -270,6 +278,9 @@ public class GoXlrChannelSyncFilter
                     }
                 }
             }
+            
+            // Add the Volume Offset Property
+            ObsProperties.obs_properties_add_float(properties, (sbyte*)sVolumeOffsetId, (sbyte*)sVolumeOffsetDescription, -60, 60, 0.1);
         }
 
         return properties;
@@ -283,10 +294,11 @@ public class GoXlrChannelSyncFilter
     {
         var context = (FilterContext*)data;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
+            context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
         }
     }
 
@@ -299,6 +311,7 @@ public class GoXlrChannelSyncFilter
 
         public sbyte* DeviceSerial;
         public sbyte* ChannelName;
+        public double VolumeOffset;
     }
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 }
