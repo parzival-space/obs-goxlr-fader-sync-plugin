@@ -16,7 +16,7 @@ Note: While the plugin may work with some older versions of OBS Studio and GoXLR
 it was tested and developed with the above versions in mind.
 
 ### Additional Requirements for Development
-If you plan on contributing to this project, you will also need a working [.Net SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) 8.0+ installation as well as all
+If you plan on contributing to this project, you will also need a working [.Net SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) 9.0+ installation as well as all
 other .NET Native AOT requirements. 
 You can find a detailed list and installation instructions [here](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net8plus%2Cwindows#prerequisites).
 
