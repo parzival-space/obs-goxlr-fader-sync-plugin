@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaderSyncPlugin", "FaderSyn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityClient", "UtilityClient\UtilityClient.csproj", "{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityClient.Test", "UtilityClient.Test\UtilityClient.Test.csproj", "{C869991D-D5BD-4CC0-AFD5-1D0244B9F94A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +24,9 @@ Global
 		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F4B974A-BFEC-47A1-9C20-8ABEE600536B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C869991D-D5BD-4CC0-AFD5-1D0244B9F94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C869991D-D5BD-4CC0-AFD5-1D0244B9F94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C869991D-D5BD-4CC0-AFD5-1D0244B9F94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C869991D-D5BD-4CC0-AFD5-1D0244B9F94A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
