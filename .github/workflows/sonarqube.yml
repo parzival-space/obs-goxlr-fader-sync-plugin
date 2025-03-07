@@ -1,0 +1,76 @@
+name: Build and analyze using SonarQube
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    #if: false # TODO: Enable this job when tests are fixed
+    name: Build and analyze
+    runs-on: windows-latest
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
+
+      - name: Set up .NET Core 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: |
+            .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          dotnet tool update JetBrains.dotCover.CommandLineTools --version 2024.3.0 --tool-path .\.sonar\scanner
+
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"parzival-space_obs-goxlr-fader-sync-plugin" /o:"parzival-space" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=".\.dotCover\report.html" /d:sonar.dotnet.excludeTestProjects=true
+          dotnet restore
+          dotnet build --no-incremental
+          .\.sonar\scanner\dotnet-dotcover cover-dotnet .\dotCover.xml -- test
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Coverage Report
+          path: |
+            ./.dotCover/dotCover.Output.html
+            ./.dotCover/dotCover.Output/**
