@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageParams>
+    <Output>./.dotCover/report.html</Output>
+    <ReportType>HTML</ReportType>
+
+    <Filters>
+        <ExcludeFilters>
+            <!-- Test Projects -->
+            <FilterEntry>
+                <ModuleMask>*.Test*</ModuleMask>
+            </FilterEntry>
+        </ExcludeFilters>
+    </Filters>
+</CoverageParams>
