@@ -38,3 +38,6 @@ msbuild.wrn
 
 # Test Project (used for local tests)
 /TestProject
+
+# dotCover reports
+.dotCover/
