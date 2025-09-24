@@ -57,4 +57,5 @@ To contribute, follow these steps:
 ## Special Thanks
 Special thanks to the following individuals who made this project possible:
 * <b>[FrostyCoolSlug](https://github.com/FrostyCoolSlug)</b>: For creating the GoXLR Utility and assisting in the creation of this plugin.
-* <b>[YorVeX](https://github.com/YorVeX/)</b>: For investigating how to create OBS plugins using .NET and documenting the process. Also, a huge thank you for creating the .NET bindings for the OBS API.
+* <b>[NetObsBindings Project](https://github.com/kostya9/NetObsBindings)</b>: For creating the .NET bindings for the OBS API.
+
