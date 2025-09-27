@@ -22,8 +22,8 @@ jobs:
         with:
           name: windows-artifacts
           path: |
-            ./FaderSyncPlugin/bin/Release/net8.0/win-x64/package/*.zip
-            ./FaderSyncPlugin/bin/Release/net8.0/win-x64/publish/*
+            ./FaderSyncPlugin/bin/Release/net9.0/win-x64/package/*.zip
+            ./FaderSyncPlugin/bin/Release/net9.0/win-x64/publish/*
   
   publish_linux:
     name: "Create Linux Artifacts"
@@ -47,5 +47,5 @@ jobs:
         with:
           name: linux-artifacts
           path: |
-            ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/package/*.zip
-            ./FaderSyncPlugin/bin/Release/net8.0/linux-x64/publish/*
+            ./FaderSyncPlugin/bin/Release/net9.0/linux-x64/package/*.zip
+            ./FaderSyncPlugin/bin/Release/net9.0/linux-x64/publish/*
