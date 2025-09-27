@@ -30,7 +30,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NetObsBindings" Version="30.0.2" />
+        <PackageReference Include="NetObsBindings" Version="32.0.0" />
         <ProjectReference Include="..\UtilityClient\UtilityClient.csproj" />
     </ItemGroup>
     

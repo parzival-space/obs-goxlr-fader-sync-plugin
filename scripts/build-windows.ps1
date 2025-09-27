@@ -26,7 +26,7 @@ if (Test-Path $installPath) {
     Remove-Item -Path "$installPath" -Recurse -Force
 }
 Write-Host "Copying new plugin files"
-Copy-Item -Recurse -Path "./FaderSyncPlugin/bin/Release/net8.0/win-x64/package/package-src/FaderSyncPlugin" -Destination "$installPath" -Force
+Copy-Item -Recurse -Path "./FaderSyncPlugin/bin/Release/net9.0/win-x64/package/package-src/FaderSyncPlugin" -Destination "$installPath" -Force
 
 # Start OBS
 Write-Host "Starting OBS"
