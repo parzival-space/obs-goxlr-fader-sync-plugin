@@ -58,10 +58,11 @@ public class GoXlrChannelSyncFilter
         context->Source = source;
         context->Settings = settings;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
+            context->Submix = ObsData.obs_data_get_string(settings, (sbyte*)sSubmixId);
             context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
         }
 
@@ -89,11 +90,18 @@ public class GoXlrChannelSyncFilter
 
         var deviceSerial = Marshal.PtrToStringUTF8((IntPtr)context->DeviceSerial);
         var channelName = Marshal.PtrToStringUTF8((IntPtr)context->ChannelName);
+        var submix = Marshal.PtrToStringUTF8((IntPtr)context->Submix);
         
 
         var target = Obs.obs_filter_get_parent(context->Source);
-        var systemVolume = utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
-            .GetValue<int>() ?? 0;
+	var systemVolume = 0;
+        if (submix == "B" && utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]!["submix"] != null) {
+            systemVolume = utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]?["submix"]?["inputs"]?[channelName ?? ""]?["volume"]?
+                .GetValue<int>() ?? 0;
+        } else {
+            systemVolume = utility.Status["mixers"]?[deviceSerial ?? ""]?["levels"]?["volumes"]?[channelName ?? ""]?
+                .GetValue<int>() ?? 0;
+        }
 
         // Ok, the GoXLR seems to decrease the volume by 1dB for every (on average) 4.85 volume steps, it
         // doesn't appear to be an exact science, but this should get us close enough to accurate for now.
@@ -145,7 +153,13 @@ public class GoXlrChannelSyncFilter
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static unsafe void GetDefaults(obs_data* settings)
     {
-        // do nothing
+        Log.Debug("Setting filter settings default!");
+
+        fixed (byte* sSubmixId = "SUBMIX"u8.ToArray(), sSubmixDefault = "A"u8.ToArray())
+        {
+            ObsData.obs_data_set_default_string(settings, (sbyte*)sSubmixId, (sbyte*)sSubmixDefault);
+        }
+        
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -195,6 +209,15 @@ public class GoXlrChannelSyncFilter
             sChannelMicMonitorId = "MicMonitor"u8.ToArray(),
             sChannelLineOut = "Line Out"u8.ToArray(),
             sChannelLineOutId = "LineOut"u8.ToArray(),
+
+            // Submixes
+            sSubmixId = "SUBMIX"u8.ToArray(),
+            sSubmixDescription = "Submix (if enabled on GoXLR)"u8.ToArray(),
+
+            sSubmixA = "Submix A (or no submix)"u8.ToArray(),
+            sSubmixAId = "A"u8.ToArray(),
+            sSubmixB = "Submix B"u8.ToArray(),
+            sSubmixBId = "B"u8.ToArray(),
             
             // volume offset
             sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(),
@@ -220,6 +243,14 @@ public class GoXlrChannelSyncFilter
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelHeadphones, (sbyte*)sChannelHeadphonesId);
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelMicMonitor, (sbyte*)sChannelMicMonitorId);
             ObsProperties.obs_property_list_add_string(channelList, (sbyte*)sChannelLineOut, (sbyte*)sChannelLineOutId);
+
+            // Create the Submix dropdown
+            // channel selection list
+            var submix = ObsProperties.obs_properties_add_list(properties, (sbyte*)sSubmixId,
+                (sbyte*)sSubmixDescription, obs_combo_type.OBS_COMBO_TYPE_RADIO,
+                obs_combo_format.OBS_COMBO_FORMAT_STRING);
+            ObsProperties.obs_property_list_add_string(submix, (sbyte*)sSubmixA, (sbyte*)sSubmixAId);
+            ObsProperties.obs_property_list_add_string(submix, (sbyte*)sSubmixB, (sbyte*)sSubmixBId);
             
             // Before we Proceed, we need to fetch a list of the available GoXLRs on the System...
             var utility = UtilitySingleton.GetInstance();
@@ -294,10 +325,11 @@ public class GoXlrChannelSyncFilter
     {
         var context = (FilterContext*)data;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
+            context->Submix = ObsData.obs_data_get_string(settings, (sbyte*)sSubmixId);
             context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
         }
     }
@@ -311,6 +343,7 @@ public class GoXlrChannelSyncFilter
 
         public sbyte* DeviceSerial;
         public sbyte* ChannelName;
+        public sbyte* Submix;
         public double VolumeOffset;
     }
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
