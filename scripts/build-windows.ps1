@@ -1,33 +1,28 @@
-$obsPath = "$env:ProgramFiles\obs-studio"
-$obsFile = "$obsPath\bin\64bit\obs64.exe"
-$installPath = "C:\ProgramData\obs-studio\plugins\FaderSyncPlugin"
+# Builds and installs the FaderSyncPlugin for testing on Windows.
+# Important: This has not been tested. Please create a PR if you run into any issues.
 
-# Check if OBS is running
-$obsProcess = Get-Process | Where-Object { $_.MainModule.FileName -like "$obsFile" }
-Write-Host $obsProcess.Name
-if ($obsProcess) {
-    Stop-Process -Name obs64 -Force
-    Write-Host "OBS has been terminated"
-}
-else {
-    Write-Host "OBS is not running."
-}
+$obsPluginsDir = "$env:ProgramData\obs-studio\plugins"
+$obsDir = "$env:ProgramFiles\obs-studio\bin\64bit"
+$sourceDir = ".\FaderSyncPlugin\bin\Release\net9.0\win-x64\package\package-src\FaderSyncPlugin"
+$targetDir = "$obsPluginsDirectory\FaderSyncPlugin"
 
-# Build the project, using dotnet publish to get native AOT binaries
+# build the plugin binaries
 dotnet publish -r win-x64 --self-contained
 if ($LastExitCode -ne 0) {
     Write-Host "Build Failed, aborting.."
     exit 1
 }
 
-# Copy plugin to OBS plugin path
-if (Test-Path $installPath) {
-    Write-Host "Removing old plugin files"
-    Remove-Item -Path "$installPath" -Recurse -Force
+# kill obs if running
+if (Get-Process | Where-Object { $_.MainModule.FileName -like "$obsProgramFile" }) {
+    Stop-Process -Name obs64 -Force
+    Write-Host "OBS has been terminated"
 }
-Write-Host "Copying new plugin files"
-Copy-Item -Recurse -Path "./FaderSyncPlugin/bin/Release/net9.0/win-x64/package/package-src/FaderSyncPlugin" -Destination "$installPath" -Force
 
-# Start OBS
-Write-Host "Starting OBS"
-Start-Process "$obsFile" -WorkingDirectory "$obsPath\bin\64bit"
+# copy plugin files into obs plugins directory
+Remove-Item -Path "$targetDir" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item -Recurse -Path "$sourceDir" -Destination "$targetDir" -Force
+
+# start obs
+Write-Host "Plugin installed. Starting OBS..."
+Start-Process "$obsDirectory\obs64.exe" -WorkingDirectory "$obsDirectory"
