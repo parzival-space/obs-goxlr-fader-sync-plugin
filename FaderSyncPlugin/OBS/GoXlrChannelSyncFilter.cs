@@ -214,7 +214,7 @@ public class GoXlrChannelSyncFilter
             sSubmixId = "SUBMIX"u8.ToArray(),
             sSubmixDescription = "Submix (if enabled on GoXLR)"u8.ToArray(),
 
-            sSubmixA = "Submix A (or no submix)"u8.ToArray(),
+            sSubmixA = "Submix A / Default Mix"u8.ToArray(),
             sSubmixAId = "A"u8.ToArray(),
             sSubmixB = "Submix B"u8.ToArray(),
             sSubmixBId = "B"u8.ToArray(),
