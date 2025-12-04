@@ -10,6 +10,7 @@ nupkg/
 
 # Rider
 .ideawi
+.idea/copilot.*.xml
 
 # User-specific files
 *.suo
