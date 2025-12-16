@@ -9,7 +9,7 @@ If you need help or encounter any problems, feel free to join the [GoXLR Utility
 or create a [new Issue](https://github.com/parzival-space/obs-goxlr-fader-sync-plugin/issues/new) in the Issues section.
 
 > [!NOTE]  
-> Version [1.3.0](https://github.com/parzival-space/obs-goxlr-fader-sync-plugin/releases/tag/v1.3.0) is currently the last update containing new features. 
+> Version [1.3.1](https://github.com/parzival-space/obs-goxlr-fader-sync-plugin/releases/tag/v1.3.1) is currently the last update containing new features. 
 > I consider this plugin feature complete and since I don't own a GoXLR anymore I don't have any reason to continue working on it.
 > If there are any new breaking changes in OBS, I will patch this plugin to continue working but for now this project is in maintenance only mode.
 >
@@ -65,5 +65,6 @@ To contribute, follow these steps:
 Special thanks to the following individuals who made this project possible:
 * <b>[FrostyCoolSlug](https://github.com/FrostyCoolSlug)</b>: For creating the GoXLR Utility and assisting in the creation of this plugin.
 * <b>[NetObsBindings Project](https://github.com/kostya9/NetObsBindings)</b>: For creating the .NET bindings for the OBS API.
+
 
 
