@@ -56,7 +56,7 @@ namespace FaderSync.OBS
         public static void obs_module_unload()
         {
             Log.Info("Plugin unloading...");
-            UtilitySingleton.GetInstance().Dispose();
+            UtilitySingleton.Shutdown();
         }
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_set_locale",

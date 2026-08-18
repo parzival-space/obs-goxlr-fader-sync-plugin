@@ -66,7 +66,7 @@ public class Utility : WebsocketClient
         {
             if (message.Id == operationId)
             {
-                responseSource.SetResult(message.Data);
+                responseSource.TrySetResult(message.Data);
             }
         }
 
@@ -93,16 +93,18 @@ public class Utility : WebsocketClient
     public async Task ConnectAsync()
     {
         String pipeName = OperatingSystem.IsWindows() ? "@goxlr.socket" : "/tmp/goxlr.socket";
-        SocketClient socketClient = new SocketClient(pipeName);
-        socketClient.Connect();
-        
-        // try getting the websocket url
-        socketClient.SendMessage("\"GetStatus\"");
-        string response = socketClient.ReadMessage();
-        
-        // close socket client connection
-        socketClient.Dispose();
-        
+        string response;
+
+        // 'using' so the pipe is released even when Connect/Read throws
+        using (SocketClient socketClient = new SocketClient(pipeName))
+        {
+            socketClient.Connect();
+
+            // try getting the websocket url
+            socketClient.SendMessage("\"GetStatus\"");
+            response = socketClient.ReadMessage();
+        }
+
         // try parsing the response
         JsonNode? status = JsonNode.Parse(response);
         if (status == null) throw new JsonException("Failed to parse status response.");
@@ -120,7 +122,8 @@ public class Utility : WebsocketClient
     
     public new async Task ConnectAsync(Uri uri)
     {
-        await base.ConnectAsync(uri);
+        if (!await base.ConnectAsync(uri))
+            throw new InvalidOperationException($"Failed to open a websocket connection to {uri}.");
 
         var requestId = this.GetNewId();
         
