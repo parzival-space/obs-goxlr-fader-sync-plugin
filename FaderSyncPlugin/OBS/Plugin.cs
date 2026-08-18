@@ -19,13 +19,20 @@ namespace FaderSync.OBS
             CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
         public static uint obs_module_ver()
         {
-            var major = (uint)Obs.Version.Major;
-            var minor = (uint)Obs.Version.Minor;
-            var patch = (uint)Obs.Version.Build;
-            
-            // min. supported OBS version: 30.0.0
-            var version = (major << 30) | (minor << 0) | patch;
-            return version;
+            // OBS builds its own LIBOBS_API_VER as (major << 24) | (minor << 16) | patch and rejects
+            // any module that reports a *newer* major/minor than the running libobs:
+            //
+            //     uint32_t ver = mod.ver ? mod.ver() & 0xFFFF0000 : 0;
+            //     if (ver > LIBOBS_API_VER) return MODULE_INCOMPATIBLE_VER;
+            //
+            // So we report the oldest version we support, not the version we were built against.
+            // The previous code shifted the major version by 30 bits, which overflowed a uint and
+            // produced garbage (30 -> 0x80000000, which OBS reads as "libobs 128.0" and refuses).
+            const uint major = 30;
+            const uint minor = 0;
+            const uint patch = 0;
+
+            return (major << 24) | (minor << 16) | patch;
         }
 
         [UnmanagedCallersOnly(EntryPoint = "obs_module_load",
