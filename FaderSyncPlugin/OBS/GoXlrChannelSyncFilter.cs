@@ -58,14 +58,13 @@ public class GoXlrChannelSyncFilter
         context->Source = source;
         context->Settings = settings;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(), sMutingBehaviorId = "MUTING_BEHAVIOR"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(), sMuteBehaviorId = "MUTE_BEHAVIOR"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
             context->Submix = ObsData.obs_data_get_string(settings, (sbyte*)sSubmixId);
             context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
-            var mutingOption = Marshal.PtrToStringUTF8((IntPtr)(ObsData.obs_data_get_string(settings, (sbyte*)sMutingBehaviorId)));
-            context->OBSMuting = (mutingOption ?? "OBS") == "OBS";
+            context->MuteBehavior = ObsData.obs_data_get_string(settings, (sbyte*)sMuteBehaviorId);
         }
 
         return context;
@@ -127,6 +126,7 @@ public class GoXlrChannelSyncFilter
         var isMuted = false;
         var faderStatus = (JsonObject?)utility.Status["mixers"]?[deviceSerial ?? ""]?["fader_status"];
         if (faderStatus != null)
+        {
             foreach (var faderEntry in faderStatus)
             {
                 if (faderEntry.Value?["channel"]?.GetValue<string>() != channelName) continue;
@@ -139,30 +139,27 @@ public class GoXlrChannelSyncFilter
                            ));
                 break;
             }
-
-        // only update channel if values changed
-        var oldVolume = Obs.obs_source_get_volume(target);
-        if (context->OBSMuting)
-        {
-            var oldMuteState = (byte)1 == Obs.obs_source_muted(target);
-            if (Math.Abs(oldVolume - obsVolume) > 0.0001 || isMuted != oldMuteState)
-            {
-                // Update OBS Volume
-                Obs.obs_source_set_volume(target, obsVolume);
-                Obs.obs_source_set_muted(target, isMuted ? (byte)1 : (byte)0);
-                Log.Info($"Updated OBS source volume and muted state from GoXLR channel '{channelName}' | new volume: {obsVolume}, new muted state: {isMuted}");
-            }
         }
-        else
+
+        var oldVolume = Obs.obs_source_get_volume(target);
+        var oldMuteState = (byte)1 == Obs.obs_source_muted(target);
+        var muteBehavior = Marshal.PtrToStringUTF8((IntPtr)context->MuteBehavior) ?? "MUTE_CHANNEL";
+        
+        // set the volume to -inf if the use wants to move the fader instead of muting the channel
+        if (muteBehavior == "FADER_VOLUME")
         {
-            // Update OBS Volume only, don't override OBS muted state
-            if (isMuted)
-                obsVolume = 0.0f; // shows as -inf dB on OBS UI
-            if (Math.Abs(oldVolume - obsVolume) > 0.0001)
-            {
-                Obs.obs_source_set_volume(target, obsVolume);
-                Log.Info($"Updated OBS source volume from GoXLR channel '{channelName}' | new volume: {obsVolume}, GoXLR muted state: {isMuted}");
-            }
+            obsVolume = 0;
+            isMuted = oldMuteState; // in this case we want to keep whatever the user sets this to
+        }
+        
+        
+        // only update channel if values changed
+        if (Math.Abs(oldVolume - obsVolume) > 0.0001 || isMuted != oldMuteState)
+        {
+            // Update OBS Volume
+            Obs.obs_source_set_volume(target, obsVolume);
+            Obs.obs_source_set_muted(target, isMuted ? (byte)1 : (byte)0);
+            Log.Info($"Updated OBS source volume and muted state from GoXLR channel '{channelName}' | new volume: {obsVolume}, new muted state: {isMuted}");
         }
     }
 
@@ -171,10 +168,10 @@ public class GoXlrChannelSyncFilter
     {
         Log.Debug("Setting filter settings default!");
 
-        fixed (byte* sSubmixId = "SUBMIX"u8.ToArray(), sSubmixDefault = "A"u8.ToArray(), sMutingBehId = "MUTING_BEHAVIOR"u8.ToArray(), sMutingBehDefault = "OBS"u8.ToArray())
+        fixed (byte* sSubmixId = "SUBMIX"u8.ToArray(), sSubmixDefault = "A"u8.ToArray(), sMuteBehaviorId = "MUTE_BEHAVIOR"u8.ToArray(), sMuteBehaviorDefault = "MUTE_CHANNEL"u8.ToArray())
         {
             ObsData.obs_data_set_default_string(settings, (sbyte*)sSubmixId, (sbyte*)sSubmixDefault);
-            ObsData.obs_data_set_default_string(settings, (sbyte*)sMutingBehId, (sbyte*)sMutingBehDefault);
+            ObsData.obs_data_set_default_string(settings, (sbyte*)sMuteBehaviorId, (sbyte*)sMuteBehaviorDefault);
         }
         
     }
@@ -240,15 +237,15 @@ public class GoXlrChannelSyncFilter
             sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(),
             sVolumeOffsetDescription = "Volume Offset (dB)"u8.ToArray(),
 
-            // muting behavior
-            sMutingBehaviorId = "MUTING_BEHAVIOR"u8.ToArray(),
-            sMutingBehaviorDescription = "Muting Behavior"u8.ToArray(),
+            // mute behavior
+            sMuteBehaviorId = "MUTE_BEHAVIOR"u8.ToArray(),
+            sMuteBehaviorDescription = "Mute Behavior"u8.ToArray(),
 
-            // muting behavior options
-            sMutingBehaviorOBSMute = "Muting OBS channel (default)"u8.ToArray(),
-            sMutingBehaviorOBSMuteId = "OBS"u8.ToArray(),
-            sMutingBehaviorTurnDown = "Change Volume slider all the way down"u8.ToArray(),
-            sMutingBehaviorTurnDownId = "Volume"u8.ToArray()
+            // mute behavior options
+            sMuteBehaviorObsMute = "Mute Channel"u8.ToArray(),
+            sMuteBehaviorObsMuteId = "MUTE_CHANNEL"u8.ToArray(),
+            sMuteBehaviorFaderVolume = "Set Channel Volume to -inf dB"u8.ToArray(),
+            sMuteBehaviorFaderVolumeId = "FADER_VOLUME"u8.ToArray()
 
             )
         {
@@ -341,12 +338,12 @@ public class GoXlrChannelSyncFilter
             // Add the Volume Offset Property
             ObsProperties.obs_properties_add_float(properties, (sbyte*)sVolumeOffsetId, (sbyte*)sVolumeOffsetDescription, -60, 60, 0.1);
 
-            // Add the dropdown for the muting behavior
-            var mutingList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sMutingBehaviorId,
-                (sbyte*)sMutingBehaviorDescription, obs_combo_type.OBS_COMBO_TYPE_LIST,
+            // Add the dropdown for the mute behavior
+            var muteBehaviorList = ObsProperties.obs_properties_add_list(properties, (sbyte*)sMuteBehaviorId,
+                (sbyte*)sMuteBehaviorDescription, obs_combo_type.OBS_COMBO_TYPE_LIST,
                 obs_combo_format.OBS_COMBO_FORMAT_STRING);
-            ObsProperties.obs_property_list_add_string(mutingList, (sbyte*)sMutingBehaviorOBSMute, (sbyte*)sMutingBehaviorOBSMuteId);
-            ObsProperties.obs_property_list_add_string(mutingList, (sbyte*)sMutingBehaviorTurnDown, (sbyte*)sMutingBehaviorTurnDownId);
+            ObsProperties.obs_property_list_add_string(muteBehaviorList, (sbyte*)sMuteBehaviorObsMute, (sbyte*)sMuteBehaviorObsMuteId);
+            ObsProperties.obs_property_list_add_string(muteBehaviorList, (sbyte*)sMuteBehaviorFaderVolume, (sbyte*)sMuteBehaviorFaderVolumeId);
         }
 
         return properties;
@@ -360,14 +357,13 @@ public class GoXlrChannelSyncFilter
     {
         var context = (FilterContext*)data;
 
-        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(), sMutingBehaviorId = "MUTING_BEHAVIOR"u8.ToArray())
+        fixed (byte* sChannelNameId = "CHANNEL_NAME"u8.ToArray(), sDeviceSerialId = "DEVICE_SERIAL"u8.ToArray(), sSubmixId = "SUBMIX"u8.ToArray(), sVolumeOffsetId = "VOLUME_OFFSET"u8.ToArray(), sMuteBehavior = "MUTE_BEHAVIOR"u8.ToArray())
         {
             context->DeviceSerial = ObsData.obs_data_get_string(settings, (sbyte*)sDeviceSerialId);
             context->ChannelName = ObsData.obs_data_get_string(settings, (sbyte*)sChannelNameId);
             context->Submix = ObsData.obs_data_get_string(settings, (sbyte*)sSubmixId);
             context->VolumeOffset = ObsData.obs_data_get_double(settings, (sbyte*)sVolumeOffsetId);
-            var mutingOption = Marshal.PtrToStringUTF8((IntPtr)(ObsData.obs_data_get_string(settings, (sbyte*)sMutingBehaviorId)));
-            context->OBSMuting = (mutingOption ?? "OBS") == "OBS";
+            context->MuteBehavior = ObsData.obs_data_get_string(settings, (sbyte*)sMuteBehavior);
         }
     }
 
@@ -382,7 +378,7 @@ public class GoXlrChannelSyncFilter
         public sbyte* ChannelName;
         public sbyte* Submix;
         public double VolumeOffset;
-        public bool OBSMuting;
+        public sbyte* MuteBehavior;
     }
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 }
