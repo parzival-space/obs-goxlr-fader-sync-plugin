@@ -120,7 +120,7 @@ public class GoXlrChannelSyncFilter
         utilityBase -= (float)context->VolumeOffset;
 
         // Now we convert this into an OBS value...
-        var obsVolume = systemVolume == 0 ? 0 : (float)Math.Pow(10, -utilityBase / 20f);
+        var obsVolume = (float)Math.Pow(10, -utilityBase / 20f);
 
         // check if channel is muted
         var isMuted = false;
